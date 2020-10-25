@@ -21,7 +21,7 @@ unsigned long clock;
 static void checkReg(uint8_t reg, const char *name, uint8_t expected, const char *comment) {
   char buffer[128];
     uint8_t v = radio.readReg(reg);
-    sprintf(buffer, "%s\t0x%02x 0x%02x <=> 0x%02x %s %s", name, reg, v, expected, comment, 
+    snprintf(buffer, 128, "%s\t0x%02x 0x%02x <=> 0x%02x %s %s", name, reg, v, expected, comment, 
       v == expected ? "" : "******");
     Serial.println(buffer);
 }
@@ -133,7 +133,7 @@ static uint8_t read8(const char **pp) {
   return res;
 }
 
-char buffer[128];
+char buffer[256];
 
 uint8_t computeCRC(unsigned len, const char *pp) {
   uint8_t res = 0;
@@ -152,7 +152,7 @@ static void displayPacket() {
   int rssi = radio.RSSI;
   const char *p = (const char *)radio.DATA;
   if (*p == '>') {
-    radio.DATA[min(radio.DATALEN, RF69_MAX_DATA_LEN)] = '\0';
+    radio.DATA[min(radio.DATALEN, RF69_MAX_DATA_LEN-1)] = '\0';
 //    closeString((char *)radio.DATA);
     Serial.println(p);
     return;
@@ -184,7 +184,7 @@ static void displayPacket() {
     return;
   }
   
-  sprintf(buffer, "%ld V=%d %d I=%d %d P=%d MPPT=%d L=%d R=%d PP=%ld H=%d MH=%d TH=%d WP=%d %f _%f %ld v=%d ^=%d l=%d CE=%ld",
+  snprintf(buffer, 256, "%ld V=%d %d I=%d %d P=%d MPPT=%d L=%d R=%d PP=%ld H=%d MH=%d TH=%d WP=%d %f _%f %ld v=%d ^=%d l=%d CE=%ld",
     _clock, voltage, voltageReading, current, currentReading, powerBudget, mppt_direction,
     leftPower, rightPower,
     peakPower, heading, magneticHeading, targetHeading, uNavPnt, lat * 180.0 / MAX_INT, lon * 180.0 / MAX_INT,
